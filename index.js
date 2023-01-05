@@ -29,7 +29,7 @@ mongoose
   })
   .then(() =>
     app.listen(PORT, () =>
-      console.log(`Server loaded at http://localhost:${PORT}`)
+      console.log(`Serve`)
     )
   )
   .catch((error) => console.log(error));
