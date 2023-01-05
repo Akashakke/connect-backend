@@ -41,7 +41,9 @@ export const updatePost = async (req, res) => {
     } else {
       res.status(403).json("Authentication failed");
     }
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json(error);
+  }
 };
 
 // delete a post
@@ -68,12 +70,12 @@ export const likePost = async (req, res) => {
   const { userId } = req.body;
   try {
     const post = await PostModel.findById(id);
-    if (post.likes.includes(userId)) {
-      await post.updateOne({ $pull: { likes: userId } });
-      res.status(200).json("Post disliked");
-    } else {
+    if (!post.likes.includes(userId)) {
       await post.updateOne({ $push: { likes: userId } });
       res.status(200).json("Post liked");
+    } else {
+      await post.updateOne({ $pull: { likes: userId } });
+      res.status(200).json("Post Unliked");
     }
   } catch (error) {
     res.status(500).json(error);
@@ -108,13 +110,13 @@ export const getTimelinePosts = async (req, res) => {
       },
     ]);
 
-    res.status(200).json(
-      currentUserPosts
-        .concat(...followingPosts[0].followingPosts)
-        .sort((a, b) => {
-          return new Date(b.createdAt) - new Date(a.createdAt);
-        })
-    );
+    res
+      .status(200)
+      .json(currentUserPosts.concat(...followingPosts[0].followingPosts)
+      .sort((a,b)=>{
+          return b.createdAt - a.createdAt;
+      })
+      );
   } catch (error) {
     res.status(500).json(error);
   }
